@@ -1,0 +1,137 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.1.2'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+/**
+ * case1
+ */
+task helloworld << {
+    println("gradle qick start")
+}
+
+/**
+ * case2
+ */
+task upper << {
+    String expString = "gradle tutorials"
+    println("original: "+ expString)
+    println("upper case: "+expString.toUpperCase())
+}
+
+/**
+ * case3 使用$it 隐式参数
+ */
+task count <<{
+    4.times {
+        println("$it ")
+    }
+}
+
+/**
+ * groovy JDK 方法
+ */
+task groovyJDKMethod << {
+    String str = "gradle"
+    str.each {
+        println("$it".toUpperCase())
+    }
+}
+
+task hello {
+    doLast{
+        println("Hello world")
+    }
+}
+
+/**
+ * 任务依赖关系
+ */
+task intro(dependsOn:hello)<<{
+    println("I'm gradle")
+}
+
+task taskX << {
+    println("taskX")
+}
+
+task taskY(dependsOn: taskX) <<{
+    println("taskY")
+}
+
+task taskZ << {
+    println("taskZ")
+}
+//使用Task对象定义依赖性
+taskZ.dependsOn taskY
+
+/**
+ * 另一种方法来添加任务依赖，它就是通过使用闭包。在这种情况下，任务通过闭包释放如果您在构建脚本中使用闭包，
+ * 那么应该返回任务对象的单个任务或集合。以下示例将任务中从taskX添加依赖项到项目中的所有任务，其名称以“lib”开头。
+ */
+taskX.dependsOn {
+    tasks.findAll(){
+        task ->task.name.startsWith("lib")
+    }
+}
+
+task lib1 << {
+    println 'lib1'
+}
+task lib2 << {
+    println 'lib2'
+}
+task notALib << {
+    println 'notALib'
+}
+
+//向任务添加描述
+// 可以向任务添加描述。 执行Gradle任务时会显示此描述。 这可以通过使用description关键字。
+task copy(type: Copy) {
+    description 'Copies the resource directory to the target directory.'
+    from 'resources'
+    into 'target'
+    include('**/*.txt', '**/*.xml', '**/*.properties')
+    println("description applied")
+}
+
+
+task compile << {
+    println 'We are doing the compile.'
+}
+
+/**
+ * 如果用于跳过任务的逻辑不能用谓词表示，则可以使用StopExecutionException。
+ * 如果操作抛出此异常，则会跳过此操作的进一步执行以及此任务的任何后续操作的执行。
+ * 构建继续执行下一个任务。
+ */
+compile.doFirst {
+    // Here you would put arbitrary conditions in real life.
+    // But this is used in an integration test so we want defined behavior.
+    if (true) { throw new StopExecutionException() }
+}
+task myTask(dependsOn: 'compile') << {
+    println 'I am not affected'
+}
