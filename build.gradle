@@ -1,5 +1,5 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-
+apply from:'version.gradle'
 buildscript {
 
     repositories {
@@ -134,4 +134,8 @@ compile.doFirst {
 }
 task myTask(dependsOn: 'compile') << {
     println 'I am not affected'
+}
+
+task printVersion <<{
+    println("app版本是$versionName 版本号 $versionCode")
 }
